@@ -53,7 +53,7 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
     # OVA export
     vm_service = vms_service.vm_service(vm.id)
     # Find the host:
-    myhost = config.odev_host if arch_type = 'odev' else config.ovirt_host
+    myhost = config.odev_host if arch_type == 'odev' else config.ovirt_host
     hosts_service = connection.system_service().hosts_service()
     host = hosts_service.list(search='name={}'.format(myhost))[0]
     # Export the virtual machine. Note that the 'filename' parameter is
