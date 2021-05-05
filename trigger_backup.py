@@ -37,10 +37,19 @@ def snapshot(vms_service, vm, current_date):
 
 def export_ova(connection, vms_service, vm, arch_type, current_date):
     log('INFO', 'Exporting OVA of VM: {0}'.format(vm.name))
-    # shut down the VM before exporting?
-    
     # OVA export
     vm_service = vms_service.vm_service(vm.id)
+    # shut down the VM before exporting?
+    #if vm.status == 'up':
+    #  # Call the "stop" method of the service to stop it:
+    #  vm_service.stop()
+
+    #  # Wait till the virtual machine is down:
+    #  while True:
+    #    time.sleep(5)
+    #        vm = vm_service.get()
+    #            if vm.status == types.VmStatus.DOWN:
+    #                break
     # Find the host:
     myhost = config.odev_host if arch_type == 'odev' else config.ovirt_host
     hosts_service = connection.system_service().hosts_service()
@@ -55,6 +64,15 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
         directory=config.ova_export_dir,
         filename='{0}_{1}.ova'.format(vm.name, current_date)
     )
+    # Call the "start" method of the service to start it:
+    # vm_service.start()
+
+    ## Wait till the virtual machine is up:
+    #while True:
+    #    time.sleep(5)
+    #    vm = vm_service.get()
+    #    if vm.status == types.VmStatus.UP:
+    #        break
     log('INFO', 'OVA export ended for VM: {0}'.format(vm.name))
 
 
@@ -96,7 +114,7 @@ def main():
         debug=True,
         log=logging.getLogger(),
     )
-    log('INFO', 'Connecting to the HostedEngin API of {}'.format(arch_type))
+    log('INFO', 'Connecting to the HostedEngine API of {}'.format(arch_type))
     # Locate the virtual machines service and use it to find the virtual
     # machine:
     vms_service = connection.system_service().vms_service()
