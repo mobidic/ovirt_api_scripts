@@ -15,7 +15,8 @@ logging.basicConfig(level=logging.DEBUG, filename='example.log')
 
 
 def log(level, text):
-    localtime = time.asctime(time.localtime(time.time()))
+    localtime = datetime.datetime.now()
+    # localtime = time.asctime(time.localtime(time.time()))
     if level == 'ERROR':
         sys.exit('[{0}]: {1} - {2}'.format(level, localtime, text))
     print('[{0}]: {1} - {2}'.format(level, localtime, text))
@@ -31,6 +32,7 @@ def snapshot(vms_service, vm, current_date):
             description='{0}_{1}'.format(vm.name, current_date),
         ),
     )
+    log('INFO', 'Snapshot ended for VM: {0}'.format(vm.name))
 
 
 def export_ova(connection, vms_service, vm, arch_type, current_date):
@@ -53,6 +55,7 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
         directory=config.ova_export_dir,
         filename='{0}_{1}.ova'.format(vm.name, current_date)
     )
+    log('INFO', 'OVA export ended for VM: {0}'.format(vm.name))
 
 
 def main():
@@ -106,31 +109,11 @@ def main():
             if vn.name != 'HostedEngine':
                 if btype == 'snapshot':
                     snapshot(vms_service, vm, current_date)
-                    # log('INFO', 'Snapshoting VM: {0}'.format(vm.name))
-
-                    # Locate the service that manages the snapshots of the virtual machine:
-                    # snapshots_service = vms_service.vm_service(vm.id).snapshots_service()
-
-                    # Add the new snapshot:
-                    # snapshots_service.add(
-                    #     types.Snapshot(
-                    #         description='{0}_{1}'.format(vm.name, current_date),
-                    #     ),
-                    # )
                 else:
                     export_ova(connection, vms_service, vm, arch_type, current_date)
-                    # log('INFO', 'Exporting OVA for VM: {0}, status: {1}'.format(vm.name, vm.status))
-                    # shut down the VM before exporting?
-
-                    # OVA export
-                    # vm_service = vms_service.vm_service(vm.id)
-                    # Find the host:
-                    # hosts_service = connection.system_service().hosts_service()
-                    # host = hosts_service.list(search='name=myhost')[0]
     else:
-        log('INFO', 'VM: {0}, status: {1}'.format(vm.name, vm.status))
         vm = vms_service.list(search='name={}'.format(name))[0]
-        if vn.name != 'HostedEngine':
+        if vm.name != 'HostedEngine':
             if btype == 'snapshot':
                 snapshot(vms_service, vm, current_date)
             else:
