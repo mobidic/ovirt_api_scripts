@@ -58,7 +58,7 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
 def main():
     parser = argparse.ArgumentParser(
         description='Connects to ovirt and triggers ova export or snaphots',
-        usage='python update_resources.py <-a [odev|ovirt]> <-n vmname> <-t [snapshot|ova]>'
+        usage='python3 trigger_backup.py <-a [odev|ovirt]> <-n vmname> <-t [snapshot|ova]>'
     )
     parser.add_argument('-a', '--arch-type', default='odev', required=True,
         help='architecture to realise the snapshot on [odev|ovirt], default=odev')
