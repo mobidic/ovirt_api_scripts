@@ -1,6 +1,8 @@
+import sys
 import logging
 import argparse
 import datetime
+import time
 import ovirtsdk4 as sdk
 import ovirtsdk4.types as types
 # custom config
@@ -21,6 +23,7 @@ def log(level, text):
         sys.exit('[{0}]: {1} - {2}'.format(level, localtime, text))
     print('[{0}]: {1} - {2}'.format(level, localtime, text))
 
+
 def snapshot(vms_service, vm, current_date):
     log('INFO', 'Snapshoting VM: {0}'.format(vm.name))
     # Locate the service that manages the snapshots of the virtual machine:
@@ -40,16 +43,15 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
     # OVA export
     vm_service = vms_service.vm_service(vm.id)
     # shut down the VM before exporting?
-    #if vm.status == 'up':
-    #  # Call the "stop" method of the service to stop it:
-    #  vm_service.stop()
-
-    #  # Wait till the virtual machine is down:
-    #  while True:
-    #    time.sleep(5)
-    #        vm = vm_service.get()
-    #            if vm.status == types.VmStatus.DOWN:
-    #                break
+    if vm.status == 'up':
+        # Call the "stop" method of the service to stop it:
+        vm_service.stop()
+        # Wait till the virtual machine is down:
+        while True:
+            time.sleep(5)
+            vm = vm_service.get()
+            if vm.status == types.VmStatus.DOWN:
+                break
     # Find the host:
     myhost = config.odev_host if arch_type == 'odev' else config.ovirt_host
     hosts_service = connection.system_service().hosts_service()
@@ -65,14 +67,13 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
         filename='{0}_{1}.ova'.format(vm.name, current_date)
     )
     # Call the "start" method of the service to start it:
-    # vm_service.start()
-
-    ## Wait till the virtual machine is up:
-    #while True:
-    #    time.sleep(5)
-    #    vm = vm_service.get()
-    #    if vm.status == types.VmStatus.UP:
-    #        break
+    vm_service.start()
+    # Wait till the virtual machine is up:
+    while True:
+        time.sleep(5)
+        vm = vm_service.get()
+        if vm.status == types.VmStatus.UP:
+            break
     log('INFO', 'OVA export ended for VM: {0}'.format(vm.name))
 
 
@@ -82,18 +83,18 @@ def main():
         usage='python3 trigger_backup.py <-a [odev|ovirt]> <-n vmname> <-t [snapshot|ova]>'
     )
     parser.add_argument('-a', '--arch-type', default='odev', required=True,
-        help='architecture to realise the snapshot on [odev|ovirt], default=odev')
+                        help='architecture to realise the snapshot on [odev|ovirt], default=odev')
     parser.add_argument('-n', '--name', required=False,
-        help='name of VM to be snapshoted on')
+                        help='name of VM to be snapshoted on')
     parser.add_argument('-t', '--backup-type', default='snapshot', required=True,
-        help='backup type [snapshot|ova], default=snapshot')
+                        help='backup type [snapshot|ova], default=snapshot')
     args = parser.parse_args()
     fqdn = config.odev_fqdn
     arch_type = 'odev'
     if args.arch_type and \
             args.arch_type == 'ovirt':
-         fqdn = config.ovirt_fqdn
-         arch_type = 'ovirt'
+        fqdn = config.ovirt_fqdn
+        arch_type = 'ovirt'
     name = 'all'
     if args.name:
         name = args.name
@@ -101,7 +102,7 @@ def main():
     if args.backup_type and \
             args.backup_type == 'ova':
         btype = 'ova'
-    
+
     now = datetime.datetime.now()
     current_date = now.strftime("%Y%d%m")
 
@@ -121,10 +122,10 @@ def main():
 
     if name == 'all':
         vms = vms_service.list()
-        
+
         for vm in vms:
             # not the HostedEngine
-            if vn.name != 'HostedEngine':
+            if vm.name != 'HostedEngine':
                 if btype == 'snapshot':
                     snapshot(vms_service, vm, current_date)
                 else:
@@ -142,4 +143,4 @@ def main():
 
 
 if __name__ == '__main__':
-        main()
+    main()
