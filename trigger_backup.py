@@ -72,7 +72,7 @@ def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
     nb_snap = 0
     # for snap_id, snap_description in sorted(snaps_map.items(), reverse=True):
     for snap_id in sorted(snaps_map.values(), reverse=True):
-        snap_description = snap[snap_id]
+        snap_description = snaps_map[snap_id]
         match_obj = re.search(rf'^\d+_{snap_type}_', snap_description)
         if match_obj:
             # oldest last
