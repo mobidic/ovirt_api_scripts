@@ -24,7 +24,7 @@ def log(level, text):
     print('[{0}]: {1} - {2}'.format(level, localtime, text))
 
 
-def snapshot(vms_service, vm, current_date):
+def snapshot(vms_service, vm, current_date, keep_memory):
     log('INFO', 'Snapshoting VM: {0}'.format(vm.name))
     # Locate the service that manages the snapshots of the virtual machine:
     snapshots_service = vms_service.vm_service(vm.id).snapshots_service()
@@ -33,6 +33,7 @@ def snapshot(vms_service, vm, current_date):
     snapshots_service.add(
         types.Snapshot(
             description='{0}_{1}'.format(vm.name, current_date),
+            persist_memorystate=keep_memory,
         ),
     )
     log('INFO', 'Snapshot ended for VM: {0}'.format(vm.name))
@@ -88,6 +89,8 @@ def main():
                         help='name of VM to be snapshoted on')
     parser.add_argument('-t', '--backup-type', default='snapshot', required=True,
                         help='backup type [snapshot|ova], default=snapshot')
+    parser.add_argument('-km', '--keep-memory', default=False, required=True,
+                        help='if -t snapshot, includes RAM state or not')
     args = parser.parse_args()
     fqdn = config.odev_fqdn
     arch_type = 'odev'
@@ -102,6 +105,8 @@ def main():
     if args.backup_type and \
             args.backup_type == 'ova':
         btype = 'ova'
+    if btype == 'snapshot':
+        keep_memory = False if args.keep_memory is False else True
 
     now = datetime.datetime.now()
     current_date = now.strftime("%Y%d%m")
@@ -127,14 +132,14 @@ def main():
             # not the HostedEngine
             if vm.name != 'HostedEngine':
                 if btype == 'snapshot':
-                    snapshot(vms_service, vm, current_date)
+                    snapshot(vms_service, vm, current_date, keep_memory)
                 else:
                     export_ova(connection, vms_service, vm, arch_type, current_date)
     else:
         vm = vms_service.list(search='name={}'.format(name))[0]
         if vm.name != 'HostedEngine':
             if btype == 'snapshot':
-                snapshot(vms_service, vm, current_date)
+                snapshot(vms_service, vm, current_date, keep_memory)
             else:
                 export_ova(connection, vms_service, vm, arch_type, current_date)
 
