@@ -79,7 +79,7 @@ def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
         for snap in snapshots_service.list()
     }
     # .iteritems()  sorted(snaps_map, reverse=True)
-    log('DEBUG', 'snaps_map: {}'.format(snaps_map))
+    # log('DEBUG', 'snaps_map: {}'.format(snaps_map))
     nb_snap = 0
     # put keys and values in list to get the index later
     snap_ids = list(snaps_map.keys())
@@ -95,7 +95,7 @@ def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
         match_obj = re.search(rf'^\d{{8}}_{snap_type}_', snap_description)
         if match_obj:
             # oldest last
-            log('DEBUG', 'snapshot {0}, id: {1}'.format(snap_description, snap_id))
+            # log('DEBUG', 'snapshot {0}, id: {1}'.format(snap_description, snap_id))
             nb_snap += 1
             if nb_snap > nb:
                 # Remove the snapshot:
@@ -114,7 +114,8 @@ def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
                     try:
                         snap = snap_service.get()
                     except Exception as e:
-                        if not re.match('404', e.args):
+                        if not re.search(r'404', str(e.args)):
+                            log('DEBUG', str(e.args))
                             logging.warning('Removing snapshot for desc {0} failed with error {1}'.format(snap_description, e.args))
                         break
                 log('INFO', 'Snapshot removal ended for snapshot: {0}'.format(snap_description))
