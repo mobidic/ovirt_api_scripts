@@ -114,10 +114,11 @@ def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
                     try:
                         snap = snap_service.get()
                     except Exception as e:
-                        logging.warning('Removing snapshot for desc {0} failed with error {1}'.format(snap_description, e.args))
+                        if not re.match('404', e.args):
+                            logging.warning('Removing snapshot for desc {0} failed with error {1}'.format(snap_description, e.args))
                         break
                 log('INFO', 'Snapshot removal ended for snapshot: {0}'.format(snap_description))
-
+                logging.info('Removed snapshot {0}, id: {1}'.format(snap_description, snap_id))
 
 
 def export_ova(connection, vms_service, vm, arch_type, current_date):
