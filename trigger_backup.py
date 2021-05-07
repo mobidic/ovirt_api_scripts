@@ -56,10 +56,10 @@ def snapshot(vms_service, vm, current_date, keep_memory):
     log('INFO', 'Snapshot ended for VM: {0}'.format(vm.name))
     # keep only the 5 more recent if keep_memory is False => Nightly
     if keep_memory is False:
-        remove_oldest_snapshot(snapshots_service, snap_type, 5, logging)
+        remove_oldest_snapshot(snapshots_service, snap_type, config.nightly_snapshot_nb, logging)
     else:
         # keep only the 4 more recent if keep_memory is True
-        remove_oldest_snapshot(snapshots_service, snap_type, 4, logging)
+        remove_oldest_snapshot(snapshots_service, snap_type, config.weekly_snapshot_nb, logging)
 
 
 def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
@@ -70,9 +70,16 @@ def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
     # .iteritems()  sorted(snaps_map, reverse=True)
     log('DEBUG', 'snaps_map: {}'.format(snaps_map))
     nb_snap = 0
+    # put keys and values in list to get the index later
+    snap_ids = list(snaps_map.keys())
+    snap_descriptions = list(snaps_map.values())
     # for snap_id, snap_description in sorted(snaps_map.items(), reverse=True):
-    for snap_id in sorted(snaps_map.values(), reverse=True):
-        snap_description = snaps_map[snap_id]
+    # we iterate on reverse values (descriptions) to get the oldest dates last
+    # a little bit heavy but we want to control the order
+    for snap_description in sorted(snaps_map.values(), reverse=True):
+        # get associated key
+        snap_description_index = snap_descriptions.index(snap_description)
+        snap_id = snap_ids[snap_description_index]
         match_obj = re.search(rf'^\d+_{snap_type}_', snap_description)
         if match_obj:
             # oldest last
@@ -84,6 +91,16 @@ def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
                 logging.info('Removing snapshot {0}, id: {1}'.format(snap_description, snap_id))
                 log('INFO', 'Removing snapshot {}'.format(snap_description))
                 snap_service.remove()
+                # Poll and wait till the status of the snapshot is 'ok', which means
+                # that it is completely created:
+                snap = snap_service.get()
+                while snap.snapshot_status == types.SnapshotStatus.LOCKED:
+                    time.sleep(5)
+                    try:
+                        snap = snap_service.get()
+                    except Exception:
+                        break
+                log('INFO', 'Snapshot removal ended for snapshot: {0}'.format(snap_description))
 
 
 def export_ova(connection, vms_service, vm, arch_type, current_date):
