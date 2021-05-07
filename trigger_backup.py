@@ -36,7 +36,7 @@ def check_descriptions(snapshots_service, current_date, snap_type, vm_name):
 def snapshot(vms_service, vm, current_date, keep_memory):
     snap_type = 'nightly' if keep_memory is False else 'weekly'
     logging.basicConfig(
-        format="%(asctime)-15s [%(levelname)] %(message)s",
+        format="%(asctime)-15s [%(levelname)s] %(message)s",
         level=logging.INFO,
         filename='logs/{0}_{1}_backup.log'.format(vm.name, snap_type),
         datefmt='%Y-%m-%d %H:%M:%S'
@@ -56,9 +56,6 @@ def snapshot(vms_service, vm, current_date, keep_memory):
     )
     logging.info(
         'Sent request to create snapshot \'{0}\', the id is \'{1}\'.'.format(snap.description, snap.id),
-    )
-    logging.warning(
-        'Charles',
     )
     # Poll and wait till the status of the snapshot is 'ok', which means
     # that it is completely created:
@@ -125,7 +122,7 @@ def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
 
 def export_ova(connection, vms_service, vm, arch_type, current_date):
     logging.basicConfig(
-        format="%(asctime)-15s [%(levelname)] %(message)s",
+        format="%(asctime)-15s [%(levelname)s] %(message)s",
         level=logging.INFO,
         filename='logs/{0}_OVA_backup.log'.format(vm.name),
         datefmt='%Y-%m-%d %H:%M:%S'
