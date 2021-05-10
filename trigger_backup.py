@@ -1,3 +1,4 @@
+import os
 import sys
 import re
 import logging
@@ -38,7 +39,7 @@ def snapshot(vms_service, vm, current_date, keep_memory):
     logging.basicConfig(
         format="%(asctime)-15s [%(levelname)s] %(message)s",
         level=logging.INFO,
-        filename='logs/{0}_{1}_backup.log'.format(vm.name, snap_type),
+        filename='{0}/logs/{1}_{2}_backup.log'.format(os.path.dirname(__file__), vm.name, snap_type),
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     log('INFO', 'Snapshoting VM: {0}'.format(vm.name))
@@ -126,7 +127,7 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
     logging.basicConfig(
         format="%(asctime)-15s [%(levelname)s] %(message)s",
         level=logging.INFO,
-        filename='logs/{0}_OVA_backup.log'.format(vm.name),
+        filename='{0}/logs/{1}_{2}_backup.log'.format(os.path.dirname(__file__), vm.name, snap_type),
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     log('INFO', 'Exporting OVA of VM: {0}'.format(vm.name))
