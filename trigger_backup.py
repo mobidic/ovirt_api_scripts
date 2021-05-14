@@ -204,10 +204,12 @@ def main():
                         help='if -t snapshot, includes RAM state or not', action='store_true')
     args = parser.parse_args()
     fqdn = config.odev_fqdn
+    cacert = config.odev_ca_cert
     arch_type = 'odev'
     if args.arch_type and \
             args.arch_type == 'ovirt':
         fqdn = config.ovirt_fqdn
+        cacert = config.ovirt_ca_cert
         arch_type = 'ovirt'
     name = 'all'
     if args.name:
@@ -226,7 +228,7 @@ def main():
         url='https://{}/ovirt-engine/api'.format(fqdn),
         username='{}@internal'.format(config.login),
         password=config.password,
-        ca_file=config.odev_ca_cert,
+        ca_file=cacert,
         debug=True,
         log=logging.getLogger(),
     )
