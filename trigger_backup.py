@@ -220,7 +220,7 @@ def main():
         keep_memory = True if args.keep_memory else False
 
     now = datetime.datetime.now()
-    current_date = now.strftime("%Y%d%m")
+    current_date = now.strftime("%Y%m%d")
     # Create the connection to the server:
     connection = sdk.Connection(
         url='https://{}/ovirt-engine/api'.format(fqdn),
