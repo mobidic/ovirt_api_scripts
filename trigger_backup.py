@@ -127,7 +127,7 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
     logging.basicConfig(
         format="%(asctime)-15s [%(levelname)s] %(message)s",
         level=logging.INFO,
-        filename='{0}/logs/{1}_{2}_backup.log'.format(os.path.dirname(__file__), vm.name, snap_type),
+        filename='{0}/logs/{1}_ova_backup.log'.format(os.path.dirname(__file__), vm.name),
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     log('INFO', 'Exporting OVA of VM: {0}'.format(vm.name))
@@ -168,7 +168,7 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
     )
     # wait = True => wait for validation, not ova export
     # wait for OVA export to finish
-    log('DEBUG', 'OVA export object: {}'.format(ova_export))
+    # log('DEBUG', 'OVA export object: {}'.format(ova_export))
     # vm.status is down during export_to_path_on_host
     # how to get export status?????
     # while vm.status == types.VmStatus.IMAGE_LOCKED:
