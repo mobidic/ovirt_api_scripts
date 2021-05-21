@@ -34,7 +34,7 @@ def check_descriptions(snapshots_service, current_date, snap_type, vm_name):
     # may not work if snapshots_service.list() is not well sorted ...
 
 
-def snapshot(vms_service, vm, current_date, keep_memory):
+def snapshot(vms_service, vm, current_date, arch_type, keep_memory):
     snap_type = 'nightly' if keep_memory is False else 'weekly'
     logging.basicConfig(
         format="%(asctime)-15s [%(levelname)s] %(message)s",
@@ -68,10 +68,12 @@ def snapshot(vms_service, vm, current_date, keep_memory):
     log('INFO', 'Snapshot ended for VM: {0}'.format(vm.name))
     # keep only the 5 more recent if keep_memory is False => Nightly
     if keep_memory is False:
-        remove_oldest_snapshot(snapshots_service, snap_type, config.nightly_snapshot_nb, logging)
+        number = config.ovirt_nightly_snapshot_nb if arch_type == 'ovirt' else config.odev_nightly_snapshot_nb
+        remove_oldest_snapshot(snapshots_service, snap_type, number, logging)
     else:
         # keep only the 4 more recent if keep_memory is True
-        remove_oldest_snapshot(snapshots_service, snap_type, config.weekly_snapshot_nb, logging)
+        number = config.ovirt_weekly_snapshot_nb if arch_type == 'ovirt' else config.odev_weekly_snapshot_nb
+        remove_oldest_snapshot(snapshots_service, snap_type, number, logging)
 
 
 def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
@@ -244,14 +246,14 @@ def main():
             # not the HostedEngine
             if vm.name != 'HostedEngine':
                 if btype == 'snapshot':
-                    snapshot(vms_service, vm, current_date, keep_memory)
+                    snapshot(vms_service, vm, current_date, arch_type, keep_memory)
                 else:
                     export_ova(connection, vms_service, vm, arch_type, current_date)
     else:
         vm = vms_service.list(search='name={}'.format(name))[0]
         if vm.name != 'HostedEngine':
             if btype == 'snapshot':
-                snapshot(vms_service, vm, current_date, keep_memory)
+                snapshot(vms_service, vm, current_date, arch_type, keep_memory)
             else:
                 export_ova(connection, vms_service, vm, arch_type, current_date)
 
