@@ -38,6 +38,7 @@ def snapshot(vms_service, vm, current_date, arch_type, keep_memory):
     snap_type = 'nightly' if keep_memory is False else 'weekly'
     logging.basicConfig(
         format="%(asctime)-15s [%(levelname)s] %(message)s",
+        filemode='w',
         level=logging.INFO,
         filename='{0}/logs/{1}_{2}_backup.log'.format(os.path.dirname(__file__), vm.name, snap_type),
         datefmt='%Y-%m-%d %H:%M:%S'
@@ -128,6 +129,7 @@ def remove_oldest_snapshot(snapshots_service, snap_type, nb, logging):
 def export_ova(connection, vms_service, vm, arch_type, current_date):
     logging.basicConfig(
         format="%(asctime)-15s [%(levelname)s] %(message)s",
+        filemode='w',
         level=logging.INFO,
         filename='{0}/logs/{1}_ova_backup.log'.format(os.path.dirname(__file__), vm.name),
         datefmt='%Y-%m-%d %H:%M:%S'
