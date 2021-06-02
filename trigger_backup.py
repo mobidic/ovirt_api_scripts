@@ -167,7 +167,7 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
     ova_export = vm_service.export_to_path_on_host(
         host=types.Host(id=host.id),
         directory=config.ova_export_dir,
-        filename='{0}_{1}.ova'.format(current_date, vm.name),
+        filename='{0}_{1}_{2}.ova'.format(current_date, arch_type, vm.name),
         wait=True
     )
     # wait = True => wait for validation, not ova export
