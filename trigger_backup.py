@@ -5,6 +5,7 @@ import logging
 import argparse
 import datetime
 import time
+import requests
 import ovirtsdk4 as sdk
 import ovirtsdk4.types as types
 # custom config
@@ -164,7 +165,8 @@ def export_ova(connection, vms_service, vm, arch_type, current_date):
             vm.name, host.name, config.ova_export_dir
         )
     )
-    ova_export = vm_service.export_to_path_on_host(
+    # ova_export =
+    vm_service.export_to_path_on_host(
         host=types.Host(id=host.id),
         directory=config.ova_export_dir,
         filename='{0}_{1}_{2}.ova'.format(current_date, arch_type, vm.name),
@@ -206,6 +208,8 @@ def main():
                         help='backup type [snapshot|ova], default=snapshot')
     parser.add_argument('-km', '--keep-memory', default=False, required=False,
                         help='if -t snapshot, includes RAM state or not', action='store_true')
+    parser.add_argument('-huid', '--healthchecks-uuid', required=False,
+                        help='healthchecks.io uuid of the check')
     args = parser.parse_args()
     fqdn = config.odev_fqdn
     cacert = config.odev_ca_cert
@@ -261,6 +265,15 @@ def main():
 
     # Close the connection to the server:
     connection.close()
+    if args.uuid and \
+            re.search(r'^[\d\w-]+$'):
+        log('INFO', 'Sending ping to hc-ping.com with uuid: {}'.format(args.uuid))
+        try:
+            requests.get("https://hc-ping.com/{}".format(args.uuid), timeout=10)
+            log('INFO', 'Ping sent to hc-ping.com with uuid: {}'.format(args.uuid))
+        except requests.RequestException as e:
+            # Log ping failure here...
+            log('WARNING', 'Healthchecks ping failed: %s' % e)
 
 
 if __name__ == '__main__':
