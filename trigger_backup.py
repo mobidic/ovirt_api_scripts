@@ -265,12 +265,13 @@ def main():
 
     # Close the connection to the server:
     connection.close()
-    if args.uuid and \
-            re.search(r'^[\d\w-]+$'):
-        log('INFO', 'Sending ping to hc-ping.com with uuid: {}'.format(args.uuid))
+    if args.healthchecks_uuid and \
+            re.search(r'^[\d\w-]+$', args.healthchecks_uuid):
+        huid = args.healthchecks_uuid
+        log('INFO', 'Sending ping to hc-ping.com with uuid: {}'.format(huid))
         try:
-            requests.get("https://hc-ping.com/{}".format(args.uuid), timeout=10)
-            log('INFO', 'Ping sent to hc-ping.com with uuid: {}'.format(args.uuid))
+            requests.get("https://hc-ping.com/{}".format(huid), timeout=10)
+            log('INFO', 'Ping sent to hc-ping.com with uuid: {}'.format(huid))
         except requests.RequestException as e:
             # Log ping failure here...
             log('WARNING', 'Healthchecks ping failed: %s' % e)
