@@ -7,5 +7,10 @@ odev_ca_cert='path to oDev CA cert'
 ovirt_host = 'oVirt physical host FQDN'
 odev_host = 'oDev physical host FQDN'
 ova_export_dir = 'path to export dir on host'
-nightly_snapshot_nb = number of nightly snapshots to keep
-weekly_snaphot_nb = number of weekly snapshots to keep
+nightly_snapshot_nb = int: number of nightly snapshots to keep
+weekly_snaphot_nb = int: number of weekly snapshots to keep
+http_proxy = {
+    'your http proxy address',
+    'your optional https proxy',
+    'if you use healthchecks, otherwie leave empty' 
+}

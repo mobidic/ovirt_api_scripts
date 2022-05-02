@@ -270,7 +270,10 @@ def main():
         huid = args.healthchecks_uuid
         log('INFO', 'Sending ping to hc-ping.com with uuid: {}'.format(huid))
         try:
-            requests.get("https://hc-ping.com/{}".format(huid), timeout=10)
+            if config.http_proxy:
+                requests.get("https://hc-ping.com/{}".format(huid), timeout=10, proxies=config.http_proxy)
+            else:
+                requests.get("https://hc-ping.com/{}".format(huid), timeout=10)
             log('INFO', 'Ping sent to hc-ping.com with uuid: {}'.format(huid))
         except requests.RequestException as e:
             # Log ping failure here...
